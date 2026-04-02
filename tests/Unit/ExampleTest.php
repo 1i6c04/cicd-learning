@@ -16,6 +16,6 @@ class ExampleTest extends TestCase
 
     public function test_needs_to_be_failed(): void
     {
-        $this->assertTrue(true);
+        $this->assertTrue(false);
     }
 }
