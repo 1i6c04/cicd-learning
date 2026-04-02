@@ -1,66 +1,115 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# CI 體驗專案：GitHub Actions 自動跑測試
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+這是一個搭配文章《CI 是什麼？Junior 工程師也能跟著體驗的 GitHub Actions 流程》的練習專案。
 
-## About Laravel
+透過這個 Laravel 專案，你可以親手體驗一次完整的 CI 流程：push 程式碼 → GitHub Actions 自動跑測試 → 看到綠色勾勾（或紅色叉叉）。
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 事前準備
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- 一個 GitHub 帳號
+- 本機已安裝 [Git](https://git-scm.com/)
+- 本機已安裝 [PHP 8.1+](https://www.php.net/) 和 [Composer](https://getcomposer.org/)（想在本機跑測試才需要，純體驗 CI 可跳過）
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 開始體驗
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Step 1：Fork 這個專案
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+到 GitHub 上點右上角的 **Fork**，把這個 repo 複製一份到你自己的帳號下。
 
-## Laravel Sponsors
+### Step 2：Clone 到本機
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+git clone https://github.com/<你的 GitHub 帳號>/cicd-learning.git
+cd cicd-learning
+```
 
-### Premium Partners
+### Step 3：安裝依賴並設定環境
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+```
 
-## Contributing
+### Step 4：在本機跑一次測試（確認環境正常）
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+php artisan test
+```
 
-## Code of Conduct
+你應該會看到測試通過的結果。
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Step 5：推上 GitHub，觸發 CI
 
-## Security Vulnerabilities
+目前專案裡已經有 `.github/workflows/ci.yml`，所以只要 push 到 `main` 分支，GitHub Actions 就會自動執行。
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+git push origin main
+```
 
-## License
+### Step 6：到 GitHub 看結果
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. 打開你 fork 的 repo 頁面
+2. 點上方的 **Actions** 分頁
+3. 你會看到一個正在跑（或已完成）的 workflow
+4. 全部通過 → commit 旁邊出現綠色勾勾
+
+---
+
+## 體驗測試失敗的情況
+
+試著讓測試故意失敗，看看 CI 會怎麼反應：
+
+1. 打開 `tests/Feature/ExampleTest.php`
+2. 把 `assertStatus(200)` 改成 `assertStatus(500)`
+3. Commit 並 push：
+
+```bash
+git add tests/Feature/ExampleTest.php
+git commit -m "test: 故意讓測試失敗來體驗 CI"
+git push origin main
+```
+
+4. 回到 GitHub 的 Actions 頁面，你會看到紅色叉叉
+5. 點進去看 log，找到 `Run tests` 那一步，就能看到失敗原因
+
+記得體驗完把測試改回來！
+
+---
+
+## 專案結構（跟 CI 相關的部分）
+
+```
+.github/workflows/ci.yml   ← CI 的設定檔，定義了自動化流程
+tests/Feature/              ← Feature 測試
+tests/Unit/                 ← Unit 測試
+phpunit.xml                 ← PHPUnit 設定檔
+```
+
+---
+
+## CI 設定檔說明
+
+`.github/workflows/ci.yml` 做了這些事：
+
+1. 當 `push` 到 `main` 或有 PR 指向 `main` 時觸發
+2. 在 Ubuntu 虛擬機上設定 PHP 8.1 環境
+3. 安裝 Composer 依賴
+4. 複製 `.env` 並產生 APP_KEY
+5. 用記憶體內的 SQLite 跑測試
+
+詳細的概念說明請參考文章本體。
+
+---
+
+## 延伸挑戰
+
+如果你想多玩一點：
+
+- 試著開一個 PR（而不是直接 push 到 main），看看 PR 頁面底部的 checks 區塊
+- 到 repo 的 **Settings → Branches → Add rule**，開啟 Branch Protection，強制要求 CI 通過才能 merge
+- 試著在 `tests/` 裡新增自己的測試案例，看 CI 會不會一起跑
